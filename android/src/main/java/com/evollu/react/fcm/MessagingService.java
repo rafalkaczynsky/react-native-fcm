@@ -14,6 +14,8 @@ import com.facebook.react.bridge.ReactContext;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Iterator;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -78,21 +80,36 @@ public class MessagingService extends FirebaseMessagingService {
         }
     }
 
+
     public void buildLocalNotification(RemoteMessage remoteMessage) {
         if(remoteMessage.getData() == null){
             return;
         }
+
         Map<String, String> data = remoteMessage.getData();
         String customNotification = data.get("custom_notification");
+     
         if(customNotification != null){
             try {
-                Bundle bundle = BundleJSONConverter.convertToBundle(new JSONObject(customNotification));
+                JSONObject customNotificationData = new JSONObject(customNotification);
+                JSONObject notificationData = new JSONObject(data);
+
+                JSONObject merged = new JSONObject();
+                JSONObject[] objs = new JSONObject[] { customNotificationData, notificationData };
+                for (JSONObject obj : objs) {
+                    Iterator it = obj.keys();
+                    while (it.hasNext()) {
+                        String key = (String)it.next();
+                        merged.put(key, obj.get(key));
+                    }
+                }
+
+                Bundle bundle = BundleJSONConverter.convertToBundle(merged);
                 FIRLocalMessagingHelper helper = new FIRLocalMessagingHelper(this.getApplication());
                 helper.sendNotification(bundle);
-            } catch (JSONException e) {
-                e.printStackTrace();
+            } catch (Throwable t) {
+                Log.e("My App", "Could not parse malformed JSON: \"" + customNotification + "\"");
             }
-
         }
     }
 }
