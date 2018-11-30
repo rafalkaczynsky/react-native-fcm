@@ -87,6 +87,11 @@ public class MessagingService extends FirebaseMessagingService {
         }
 
         Map<String, String> data = remoteMessage.getData();
+        RemoteMessage.Notification	notif = remoteMessage.getNotification();
+
+        String title = notif.getTitle();
+        String icon = "ic_action_name";
+
         String customNotification = data.get("custom_notification");
      
         if(customNotification != null){
@@ -103,6 +108,9 @@ public class MessagingService extends FirebaseMessagingService {
                         merged.put(key, obj.get(key));
                     }
                 }
+
+                merged.put("icon", icon);
+                merged.put("title", title);
 
                 Bundle bundle = BundleJSONConverter.convertToBundle(merged);
                 FIRLocalMessagingHelper helper = new FIRLocalMessagingHelper(this.getApplication());
