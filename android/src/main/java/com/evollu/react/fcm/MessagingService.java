@@ -90,8 +90,9 @@ public class MessagingService extends FirebaseMessagingService {
         RemoteMessage.Notification	notif = remoteMessage.getNotification();
 
         String title = notif.getTitle();
-        String icon = "ic_action_name";
-
+        String icon = "@drawable/ic_notif";
+        String color = "#448AFF";
+        
         String customNotification = data.get("custom_notification");
      
         if(customNotification != null){
@@ -111,7 +112,8 @@ public class MessagingService extends FirebaseMessagingService {
 
                 merged.put("icon", icon);
                 merged.put("title", title);
-
+                merged.put("color", color);
+                
                 Bundle bundle = BundleJSONConverter.convertToBundle(merged);
                 FIRLocalMessagingHelper helper = new FIRLocalMessagingHelper(this.getApplication());
                 helper.sendNotification(bundle);
